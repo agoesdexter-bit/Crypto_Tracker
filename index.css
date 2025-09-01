@@ -142,7 +142,7 @@ h1 {
     box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.25);
 }
 
-.add-crypto-form button {
+.add-crypto-form button, #api-key-form button {
     padding: 0.75rem 1.5rem;
     background-color: var(--accent-color);
     color: white;
@@ -154,7 +154,7 @@ h1 {
     transition: background-color 0.2s;
 }
 
-.add-crypto-form button:hover:not(:disabled) {
+.add-crypto-form button:hover:not(:disabled), #api-key-form button:hover:not(:disabled) {
     background-color: #0069d9;
 }
 
@@ -162,6 +162,52 @@ h1 {
     background-color: #555;
     cursor: not-allowed;
     opacity: 0.7;
+}
+
+.api-key-container {
+    text-align: center;
+    max-width: 500px;
+    margin: 2rem auto;
+}
+
+.api-key-container h2 {
+    margin-bottom: 1rem;
+    font-size: 1.5rem;
+}
+
+.api-key-info {
+    color: var(--secondary-text-color);
+    line-height: 1.6;
+    margin-bottom: 1.5rem;
+}
+
+.api-key-info.small {
+    font-size: 0.8rem;
+    margin-top: 1rem;
+    opacity: 0.7;
+}
+
+#api-key-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+#api-key-input {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    background-color: var(--background-color);
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    color: var(--primary-text-color);
+    font-size: 1rem;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+#api-key-input:focus {
+    outline: none;
+    border-color: var(--accent-color);
+    box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.25);
 }
 
 table {

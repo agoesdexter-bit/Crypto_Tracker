@@ -18,13 +18,13 @@ let cryptocurrencies: Crypto[] = [];
 let exchangeRateUSDtoIDR: number = 0;
 let ai: GoogleGenAI;
 const STORAGE_KEY = 'cryptoPortfolioTracker';
+const API_KEY_SESSION_KEY = 'GEMINI_API_KEY';
 
 // --- LOCAL STORAGE ---
 const saveState = () => {
     try {
         const state = { cryptocurrencies, exchangeRateUSDtoIDR };
         localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
-    // Fix: Added curly braces to the catch block for correct syntax.
     } catch (error) {
         console.error("Could not save state to localStorage", error);
     }
@@ -80,13 +80,13 @@ const createTableRowHTML = (crypto: Crypto): string => {
 // --- RENDER FUNCTIONS ---
 const appContainer = document.getElementById('app');
 
-const renderLoading = () => {
+const renderLoading = (message: string = 'Fetching initial crypto data...') => {
     const tableContainer = document.getElementById('table-container');
     if (tableContainer) {
         tableContainer.innerHTML = `
             <div class="loading">
                 <div class="spinner"></div>
-                Fetching initial crypto data...
+                ${message}
             </div>`;
     }
 };
@@ -168,8 +168,38 @@ const addCryptoToTable = (crypto: Crypto) => {
     }
 }
 
+const renderApiKeyInput = () => {
+     if (!appContainer) return;
+     appContainer.innerHTML = `
+        <div class="container api-key-container">
+            <h2>Enter API Key to Continue</h2>
+            <p class="api-key-info">
+                To protect your security, your API key is only stored in your browser's session and will be forgotten when you close this tab. It is never saved in the code.
+            </p>
+            <form id="api-key-form">
+                <input type="password" id="api-key-input" placeholder="Enter your Gemini API Key" required />
+                <button type="submit">Start</button>
+            </form>
+             <p class="api-key-info small">
+                For production deployment, it's highly recommended to use environment variables with a build process (like GitHub Actions and Secrets).
+            </p>
+        </div>
+     `;
+     document.getElementById('api-key-form')?.addEventListener('submit', handleApiKeySubmit);
+}
+
 
 // --- EVENT HANDLERS & API ---
+const handleApiKeySubmit = (event: Event) => {
+    event.preventDefault();
+    const input = document.getElementById('api-key-input') as HTMLInputElement;
+    const apiKey = input.value.trim();
+    if(apiKey) {
+        sessionStorage.setItem(API_KEY_SESSION_KEY, apiKey);
+        initializeApp();
+    }
+}
+
 const handleAddAsset = (symbol: string) => {
     const crypto = cryptocurrencies.find(c => c.symbol.toUpperCase() === symbol.toUpperCase());
     if (!crypto) return;
@@ -251,28 +281,23 @@ const handleAddCrypto = async (event: Event) => {
     }
 };
 
-async function main() {
+async function initializeApp() {
     renderAppLayout();
+    renderLoading('Initializing...');
+
+    const apiKey = sessionStorage.getItem(API_KEY_SESSION_KEY);
     
-    // Check for API Key before initializing or making API calls.
-    // `process` is a Node.js-specific object and won't exist in a browser environment.
-    // This check prevents a crash on deployment to static hosting like GitHub Pages.
-    if (typeof process === 'undefined' || !process.env.API_KEY) {
-        const tableContainer = document.getElementById('table-container');
-        if (tableContainer) {
-            tableContainer.innerHTML = `
-                <div class="error">
-                    <h2>Configuration Error</h2>
-                    <p>The Gemini API key is not configured. This app cannot function without it.</p>
-                    <p>For security, the API key must be provided as an environment variable (e.g., <code>API_KEY</code>) during a build step before deployment, not directly in the code.</p>
-                    <p>If you are deploying on GitHub, you must set up a GitHub Action to inject your repository secret into the code during the build process.</p>
-                </div>`;
-        }
-        return; // Stop the app from proceeding without a key
+    // This is the ideal, secure way to get the key from a build environment.
+    // For this implementation, we prioritize the session key for dev-friendliness.
+    const finalApiKey = apiKey || (typeof process !== 'undefined' ? process.env.API_KEY : undefined);
+    
+    if (!finalApiKey) {
+        renderApiKeyInput();
+        return;
     }
     
     // Initialize AI client only if key exists
-    ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+    ai = new GoogleGenAI({ apiKey: finalApiKey });
 
     const stateLoaded = loadState();
 
@@ -324,4 +349,5 @@ async function main() {
     }
 }
 
-main();
+// Start the app
+initializeApp();
