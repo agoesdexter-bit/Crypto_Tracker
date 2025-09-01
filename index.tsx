@@ -4,21 +4,12 @@
 */
 import { GoogleGenAI, Type } from "@google/genai";
 
-// --- TYPES & STATE ---
-type Crypto = {
-    name: string;
-    symbol: string;
-    price_usd: number;
-    ath_usd: number;
-    blockchain: string;
-    holdings: number;
-};
-
-let cryptocurrencies: Crypto[] = [];
-let exchangeRateUSDtoIDR: number = 0;
-let ai: GoogleGenAI;
+// --- STATE ---
+let cryptocurrencies = [];
+let exchangeRateUSDtoIDR = 0;
+let ai;
 const STORAGE_KEY = 'cryptoPortfolioTracker';
-const API_KEY_SESSION_KEY = 'GEMINI_API_KEY';
+// FIX: Removed API_KEY_SESSION_KEY constant to enforce using environment variables for the API key.
 
 // --- LOCAL STORAGE ---
 const saveState = () => {
@@ -30,7 +21,7 @@ const saveState = () => {
     }
 };
 
-const loadState = (): boolean => {
+const loadState = () => {
     try {
         const savedState = localStorage.getItem(STORAGE_KEY);
         if (savedState) {
@@ -47,7 +38,7 @@ const loadState = (): boolean => {
 
 
 // --- UI HELPERS ---
-const createCryptoIconHTML = (symbol: string): string => {
+const createCryptoIconHTML = (symbol) => {
     const colors = ["#f0b90b", "#f8a5c2", "#b39ddb", "#81c784", "#ffab91", "#80deea", "#c5e1a5", "#ffcc80"];
     const charCodeSum = symbol.split('').reduce((sum, char) => sum + char.charCodeAt(0), 0);
     const color = colors[charCodeSum % colors.length];
@@ -55,7 +46,7 @@ const createCryptoIconHTML = (symbol: string): string => {
     return `<div class="crypto-icon" style="background-color: ${color};">${initial}</div>`;
 }
 
-const createTableRowHTML = (crypto: Crypto): string => {
+const createTableRowHTML = (crypto) => {
     const usdFormatter = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' });
     const idrFormatter = new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' });
     return `
@@ -80,7 +71,7 @@ const createTableRowHTML = (crypto: Crypto): string => {
 // --- RENDER FUNCTIONS ---
 const appContainer = document.getElementById('app');
 
-const renderLoading = (message: string = 'Fetching initial crypto data...') => {
+const renderLoading = (message = 'Fetching initial crypto data...') => {
     const tableContainer = document.getElementById('table-container');
     if (tableContainer) {
         tableContainer.innerHTML = `
@@ -91,7 +82,7 @@ const renderLoading = (message: string = 'Fetching initial crypto data...') => {
     }
 };
 
-const renderError = (message: string) => {
+const renderError = (message) => {
     const tableContainer = document.getElementById('table-container');
     if (tableContainer) {
         tableContainer.innerHTML = `<p class="error">Error: ${message}</p>`;
@@ -107,7 +98,7 @@ const renderCryptoTable = () => {
         return;
     }
 
-    const tableRows = cryptocurrencies.map((crypto: Crypto) => `
+    const tableRows = cryptocurrencies.map((crypto) => `
         <tr class="fade-in">
             ${createTableRowHTML(crypto)}
         </tr>
@@ -152,7 +143,7 @@ const renderAppLayout = () => {
     document.getElementById('table-container')?.addEventListener('click', handleTableClick);
 };
 
-const addCryptoToTable = (crypto: Crypto) => {
+const addCryptoToTable = (crypto) => {
     let table = document.querySelector('table');
     if (!table) {
         // If table doesn't exist, render the whole thing
@@ -168,39 +159,12 @@ const addCryptoToTable = (crypto: Crypto) => {
     }
 }
 
-const renderApiKeyInput = () => {
-     if (!appContainer) return;
-     appContainer.innerHTML = `
-        <div class="container api-key-container">
-            <h2>Enter API Key to Continue</h2>
-            <p class="api-key-info">
-                To protect your security, your API key is only stored in your browser's session and will be forgotten when you close this tab. It is never saved in the code.
-            </p>
-            <form id="api-key-form">
-                <input type="password" id="api-key-input" placeholder="Enter your Gemini API Key" required />
-                <button type="submit">Start</button>
-            </form>
-             <p class="api-key-info small">
-                For production deployment, it's highly recommended to use environment variables with a build process (like GitHub Actions and Secrets).
-            </p>
-        </div>
-     `;
-     document.getElementById('api-key-form')?.addEventListener('submit', handleApiKeySubmit);
-}
-
+// FIX: Removed renderApiKeyInput and handleApiKeySubmit functions to adhere to security guidelines.
+// The API key must be provided via the `process.env.API_KEY` environment variable.
 
 // --- EVENT HANDLERS & API ---
-const handleApiKeySubmit = (event: Event) => {
-    event.preventDefault();
-    const input = document.getElementById('api-key-input') as HTMLInputElement;
-    const apiKey = input.value.trim();
-    if(apiKey) {
-        sessionStorage.setItem(API_KEY_SESSION_KEY, apiKey);
-        initializeApp();
-    }
-}
 
-const handleAddAsset = (symbol: string) => {
+const handleAddAsset = (symbol) => {
     const crypto = cryptocurrencies.find(c => c.symbol.toUpperCase() === symbol.toUpperCase());
     if (!crypto) return;
 
@@ -218,7 +182,7 @@ const handleAddAsset = (symbol: string) => {
     }
 };
 
-const handleTableClick = (event: MouseEvent) => {
+const handleTableClick = (event) => {
     const target = event.target as HTMLElement;
     if (target.classList.contains('add-asset-btn')) {
         const symbol = target.dataset.symbol;
@@ -228,10 +192,12 @@ const handleTableClick = (event: MouseEvent) => {
     }
 };
 
-const handleAddCrypto = async (event: Event) => {
+const handleAddCrypto = async (event) => {
     event.preventDefault();
     const form = event.target as HTMLFormElement;
+    // FIX: Cast HTMLElement to HTMLInputElement to access 'value' property.
     const input = document.getElementById('crypto-input') as HTMLInputElement;
+    // FIX: Cast HTMLElement to HTMLButtonElement to access 'disabled' property.
     const button = document.getElementById('add-crypto-btn') as HTMLButtonElement;
     const cryptoName = input.value.trim();
 
@@ -264,9 +230,10 @@ const handleAddCrypto = async (event: Event) => {
             contents: `Provide the current price, all-time high price, and blockchain (e.g., Ethereum, Solana, etc.) for the cryptocurrency: ${cryptoName}.`,
             config: { responseMimeType: "application/json", responseSchema: singleCryptoSchema },
         });
-
-        const newCryptoData = JSON.parse(response.text);
-        const newCrypto: Crypto = { ...newCryptoData, holdings: 0 };
+        
+        // FIX: Added .trim() to response text before parsing to prevent errors from leading/trailing whitespace.
+        const newCryptoData = JSON.parse(response.text.trim());
+        const newCrypto = { ...newCryptoData, holdings: 0 };
         cryptocurrencies.push(newCrypto);
         saveState();
         addCryptoToTable(newCrypto);
@@ -285,19 +252,17 @@ async function initializeApp() {
     renderAppLayout();
     renderLoading('Initializing...');
 
-    const apiKey = sessionStorage.getItem(API_KEY_SESSION_KEY);
+    // FIX: Simplified API key handling to exclusively use `process.env.API_KEY`.
+    // Removed UI and session storage logic for API key input.
+    const apiKey = process.env.API_KEY;
     
-    // This is the ideal, secure way to get the key from a build environment.
-    // For this implementation, we prioritize the session key for dev-friendliness.
-    const finalApiKey = apiKey || (typeof process !== 'undefined' ? process.env.API_KEY : undefined);
-    
-    if (!finalApiKey) {
-        renderApiKeyInput();
+    if (!apiKey) {
+        renderError('API_KEY environment variable is not set. Please configure the application.');
         return;
     }
     
-    // Initialize AI client only if key exists
-    ai = new GoogleGenAI({ apiKey: finalApiKey });
+    // Initialize AI client
+    ai = new GoogleGenAI({ apiKey: apiKey });
 
     const stateLoaded = loadState();
 
@@ -335,8 +300,9 @@ async function initializeApp() {
                 config: { responseMimeType: "application/json", responseSchema: initialListSchema },
             });
 
-            const data = JSON.parse(response.text);
-            cryptocurrencies = data.cryptocurrencies.map((c: any) => ({ ...c, holdings: 0 }));
+            // FIX: Added .trim() to response text before parsing to prevent errors from leading/trailing whitespace.
+            const data = JSON.parse(response.text.trim());
+            cryptocurrencies = data.cryptocurrencies.map((c) => ({ ...c, holdings: 0 }));
             exchangeRateUSDtoIDR = data.exchangeRateUSDtoIDR;
             
             saveState();
