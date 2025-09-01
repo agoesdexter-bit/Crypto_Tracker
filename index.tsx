@@ -16,7 +16,7 @@ type Crypto = {
 
 let cryptocurrencies: Crypto[] = [];
 let exchangeRateUSDtoIDR: number = 0;
-const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+let ai: GoogleGenAI;
 const STORAGE_KEY = 'cryptoPortfolioTracker';
 
 // --- LOCAL STORAGE ---
@@ -252,6 +252,25 @@ const handleAddCrypto = async (event: Event) => {
 
 async function main() {
     renderAppLayout();
+    
+    // Check for API Key before initializing or making API calls
+    if (!process.env.API_KEY) {
+        const tableContainer = document.getElementById('table-container');
+        if (tableContainer) {
+            tableContainer.innerHTML = `
+                <div class="error">
+                    <h2>Configuration Error</h2>
+                    <p>The Gemini API key is not configured. This app cannot function without it.</p>
+                    <p>For security, the API key must be provided as an environment variable (<code>process.env.API_KEY</code>) during a build step before deployment, not directly in the code.</p>
+                    <p>Please ensure your deployment process (e.g., GitHub Actions) correctly injects the API key from your repository secrets.</p>
+                </div>`;
+        }
+        return; // Stop the app
+    }
+    
+    // Initialize AI client only if key exists
+    ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+
     const stateLoaded = loadState();
 
     if (stateLoaded && cryptocurrencies.length > 0) {

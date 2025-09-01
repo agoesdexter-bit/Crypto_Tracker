@@ -6,6 +6,9 @@
     --border-color: #333333;
     --accent-color: #007bff;
     --hover-color: rgba(255, 255, 255, 0.03);
+    --error-color-light: #ff8a80;
+    --error-bg-color: rgba(255, 82, 82, 0.08);
+    --error-border-color: rgba(255, 82, 82, 0.2);
 }
 
 @keyframes fadeIn {
@@ -62,7 +65,7 @@ h1 {
     font-weight: 600;
 }
 
-.loading, .error {
+.loading {
     text-align: center;
     font-size: 1.1rem;
     color: var(--secondary-text-color);
@@ -72,6 +75,40 @@ h1 {
     align-items: center;
     gap: 1rem;
 }
+
+.error {
+    text-align: center;
+    color: var(--secondary-text-color);
+    padding: 2rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+    background-color: var(--error-bg-color);
+    border: 1px solid var(--error-border-color);
+    border-radius: 8px;
+}
+
+.error h2 {
+    color: var(--error-color-light);
+    margin-bottom: 0.5rem;
+    font-size: 1.25rem;
+}
+
+.error p {
+    line-height: 1.6;
+    max-width: 600px;
+    text-align: center;
+}
+
+.error code {
+    background-color: var(--background-color);
+    padding: 0.2em 0.4em;
+    border-radius: 4px;
+    font-family: "SF Mono", "Fira Code", "Fira Mono", "Roboto Mono", monospace;
+    color: var(--primary-text-color);
+}
+
 
 .spinner {
     width: 32px;
