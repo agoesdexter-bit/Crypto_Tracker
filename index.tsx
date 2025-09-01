@@ -182,7 +182,7 @@ const handleAddAsset = (symbol) => {
     }
 };
 
-const handleTableClick = (event) => {
+const handleTableClick = (event: MouseEvent) => {
     const target = event.target as HTMLElement;
     if (target.classList.contains('add-asset-btn')) {
         const symbol = target.dataset.symbol;
@@ -192,12 +192,11 @@ const handleTableClick = (event) => {
     }
 };
 
-const handleAddCrypto = async (event) => {
+const handleAddCrypto = async (event: Event) => {
     event.preventDefault();
+    // FIX: Cast DOM elements to their specific HTML types to access properties like 'value' and 'disabled'.
     const form = event.target as HTMLFormElement;
-    // FIX: Cast HTMLElement to HTMLInputElement to access 'value' property.
     const input = document.getElementById('crypto-input') as HTMLInputElement;
-    // FIX: Cast HTMLElement to HTMLButtonElement to access 'disabled' property.
     const button = document.getElementById('add-crypto-btn') as HTMLButtonElement;
     const cryptoName = input.value.trim();
 
