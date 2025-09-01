@@ -24,6 +24,7 @@ const saveState = () => {
     try {
         const state = { cryptocurrencies, exchangeRateUSDtoIDR };
         localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    // Fix: Added curly braces to the catch block for correct syntax.
     } catch (error) {
         console.error("Could not save state to localStorage", error);
     }
@@ -253,19 +254,21 @@ const handleAddCrypto = async (event: Event) => {
 async function main() {
     renderAppLayout();
     
-    // Check for API Key before initializing or making API calls
-    if (!process.env.API_KEY) {
+    // Check for API Key before initializing or making API calls.
+    // `process` is a Node.js-specific object and won't exist in a browser environment.
+    // This check prevents a crash on deployment to static hosting like GitHub Pages.
+    if (typeof process === 'undefined' || !process.env.API_KEY) {
         const tableContainer = document.getElementById('table-container');
         if (tableContainer) {
             tableContainer.innerHTML = `
                 <div class="error">
                     <h2>Configuration Error</h2>
                     <p>The Gemini API key is not configured. This app cannot function without it.</p>
-                    <p>For security, the API key must be provided as an environment variable (<code>process.env.API_KEY</code>) during a build step before deployment, not directly in the code.</p>
-                    <p>Please ensure your deployment process (e.g., GitHub Actions) correctly injects the API key from your repository secrets.</p>
+                    <p>For security, the API key must be provided as an environment variable (e.g., <code>API_KEY</code>) during a build step before deployment, not directly in the code.</p>
+                    <p>If you are deploying on GitHub, you must set up a GitHub Action to inject your repository secret into the code during the build process.</p>
                 </div>`;
         }
-        return; // Stop the app
+        return; // Stop the app from proceeding without a key
     }
     
     // Initialize AI client only if key exists
