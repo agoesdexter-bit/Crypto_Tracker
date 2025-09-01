@@ -1,0 +1,252 @@
+:root {
+    --background-color: #121212;
+    --surface-color: #1e1e1e;
+    --primary-text-color: #e0e0e0;
+    --secondary-text-color: #b0b0b0;
+    --border-color: #333333;
+    --accent-color: #007bff;
+    --hover-color: rgba(255, 255, 255, 0.03);
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background-color: var(--background-color);
+    color: var(--primary-text-color);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    padding: 1rem;
+}
+
+#app {
+    width: 100%;
+    max-width: 960px;
+}
+
+.container {
+    background-color: var(--surface-color);
+    border-radius: 12px;
+    padding: 2rem;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    border: 1px solid var(--border-color);
+}
+
+h1 {
+    text-align: center;
+    margin-bottom: 1.5rem;
+    font-size: 1.75rem;
+    font-weight: 600;
+}
+
+.loading, .error {
+    text-align: center;
+    font-size: 1.1rem;
+    color: var(--secondary-text-color);
+    padding: 2rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+}
+
+.spinner {
+    width: 32px;
+    height: 32px;
+    border: 4px solid var(--border-color);
+    border-top-color: var(--accent-color);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+.add-crypto-form {
+    display: flex;
+    gap: 0.75rem;
+    margin-bottom: 1.5rem;
+}
+
+.add-crypto-form input {
+    flex-grow: 1;
+    padding: 0.75rem 1rem;
+    background-color: var(--background-color);
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    color: var(--primary-text-color);
+    font-size: 1rem;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.add-crypto-form input:focus {
+    outline: none;
+    border-color: var(--accent-color);
+    box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.25);
+}
+
+.add-crypto-form button {
+    padding: 0.75rem 1.5rem;
+    background-color: var(--accent-color);
+    color: white;
+    border: none;
+    border-radius: 6px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.add-crypto-form button:hover:not(:disabled) {
+    background-color: #0069d9;
+}
+
+.add-crypto-form button:disabled {
+    background-color: #555;
+    cursor: not-allowed;
+    opacity: 0.7;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 1rem;
+}
+
+th, td {
+    padding: 1rem 0.75rem;
+    text-align: left;
+    border-bottom: 1px solid var(--border-color);
+    white-space: nowrap;
+}
+
+thead th {
+    font-weight: 600;
+    color: var(--primary-text-color);
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+tbody tr {
+    transition: background-color 0.2s;
+}
+
+tbody tr:hover {
+    background-color: var(--hover-color);
+}
+
+tbody tr:last-child td {
+    border-bottom: none;
+}
+
+tbody tr.fade-in {
+    animation: fadeIn 0.5s ease-out forwards;
+}
+
+.crypto-info {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.crypto-icon {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    color: white;
+    font-size: 1rem;
+}
+
+.crypto-name {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+}
+
+.crypto-name span {
+    font-weight: 500;
+}
+
+.crypto-name .symbol {
+    font-weight: 400;
+    font-size: 0.875rem;
+    color: var(--secondary-text-color);
+}
+
+.numeric {
+    text-align: right;
+    font-family: "SF Mono", "Fira Code", "Fira Mono", "Roboto Mono", monospace;
+}
+
+.add-asset-btn {
+    background-color: transparent;
+    border: 1px solid var(--accent-color);
+    color: var(--accent-color);
+    padding: 0.25rem 0.75rem;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.875rem;
+    transition: background-color 0.2s, color 0.2s;
+    font-weight: 500;
+}
+
+.add-asset-btn:hover {
+    background-color: var(--accent-color);
+    color: white;
+}
+
+@media (max-width: 768px) {
+    body {
+        align-items: flex-start;
+        padding: 0.5rem;
+    }
+    #app {
+        max-width: 100%;
+    }
+    .container {
+        padding: 1rem;
+    }
+    h1 {
+        font-size: 1.5rem;
+    }
+    .add-crypto-form {
+        flex-direction: column;
+    }
+    th, td {
+        padding: 0.75rem 0.5rem;
+        font-size: 0.875rem;
+    }
+    .crypto-info {
+        gap: 0.5rem;
+    }
+    .crypto-icon {
+        width: 28px;
+        height: 28px;
+        font-size: 0.875rem;
+    }
+}
